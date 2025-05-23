@@ -1,0 +1,25 @@
+name: Generate AVIF
+on:
+  push:
+    paths:
+      - "**.jpe?g"
+      - "**.png"
+  workflow_dispatch:
+
+jobs:
+  Convert-Compress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          npm i -g @343dev/optimizt
+      - uses: actions/checkout@v4
+      - name: run optimizt
+        run: optimizt --verbose --force --avif . # -l for lossless! also max 100 conversion per task run
+      - name: Commit files
+        run: |
+          git add .
+          git config --local user.email "actions@github.com"
+          git config --local user.name "github-actions[bot]"
+          git diff --quiet && git diff --staged --quiet || git commit -am "Create WebP & AVIF versions"
+          git push
